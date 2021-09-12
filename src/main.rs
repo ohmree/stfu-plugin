@@ -1,30 +1,83 @@
 mod screens;
 
-use iced::{Sandbox, Settings};
-use screens::Screens;
+use std::sync::Arc;
+use log::*;
 
-#[derive(Debug, Default)]
-pub struct Stfu {
-    screens: Screens,
+use iced::{Application, Clipboard, Command, Settings, Subscription, executor};
+use obws::Client;
+use screens::{login, // dashboard
+};
+
+#[derive(Debug)]
+pub enum Screen {
+    Login(login::State),
 }
 
-impl Sandbox for Stfu {
-    type Message = ();
+impl Default for Screen {
+    fn default() -> Self {
+        Self::Login(login::State::default())
+    }
+}
 
-    fn new() -> Self {
-        Self::default()
+#[derive(Default)]
+pub struct Stfu {
+    screen: Screen,
+    client: Option<Arc<Client>>
+}
+
+impl std::fmt::Debug for Stfu {
+    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+        f.debug_struct("Stfu").field("screen", &self.screen).field("client", &"[client]").finish()
+    }
+}
+
+#[derive(Clone, Debug)]
+pub enum Message {
+    Login(login::Message),
+    // Dashboard(dashboard::Message),
+}
+
+impl Application for Stfu {
+    type Executor = executor::Default;
+    type Message = Message;
+    type Flags = ();
+
+    fn new(_flags: ()) -> (Self, Command<Message>) {
+        (Self::default(), Command::none())
     }
 
     fn title(&self) -> String {
-        todo!()
+        String::from("STFU")
     }
 
-    fn update(&mut self, message: Self::Message) {
-        todo!()
+    fn update(&mut self, message: Message, _clipboard: &mut Clipboard) -> Command<Message> {
+        match &mut self.screen {
+            Screen::Login(state) =>  {
+                let Message::Login(message) = message;
+                debug!("{:?}", message);
+                if let login::Message::ButtonPressed = message {
+                    let (command, _) = state.update(message);
+                    command.map(Message::Login)
+                } else {
+                    let _ = state.update(message);
+                    Command::none()
+                }
+            }
+        }
     }
 
-    fn view(&mut self) -> iced::Element<'_, Self::Message> {
-        todo!()
+    fn subscription(&self) -> Subscription<Message> {
+        if let Some(client) = self.client {
+        }
+        Subscription::none()
+    }
+
+    fn view(&mut self) -> iced::Element<Message> {
+        match &mut self.screen {
+            Screen::Login(state) => {
+                state.view().map(Message::Login)
+            }
+        }
     }
 }
 
