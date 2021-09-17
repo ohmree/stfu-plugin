@@ -1,22 +1,7 @@
 cargo-features = ["strip"]
 
-[package]
-name = "stfu"
-version = "0.1.0"
-edition = "2018"
-
-[dependencies]
-# anyhow = "1.0.44"
-# async-std = { version = "1.10.0", features = ["attributes"] }
-# load-dotenv = "0.1.2"
-# log = "0.4.14"
-obs-wrapper = "0.2.2"
-# surf = { version = "2.3.1", features = ["h1-client"] }
-# twitch_api2 = { version = "0.6.0-rc.2", features = ["client", "eventsub", "helix", "surf_client"] }
-# twitch_oauth2 = { version = "0.6.0-rc.2", features = ["surf_client"] }
-
-[lib]
-crate-type = ["cdylib"]
+[workspace]
+members = ["gui", "plugin"]
 
 [profile.release]
 strip = true  # Automatically strip symbols from the binary.
